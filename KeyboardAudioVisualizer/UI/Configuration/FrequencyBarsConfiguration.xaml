@@ -1,0 +1,102 @@
+﻿<styles:CachedResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                 xmlns:styles="clr-namespace:KeyboardAudioVisualizer.Styles"
+                                 xmlns:visualizationProvider="clr-namespace:KeyboardAudioVisualizer.AudioProcessing.VisualizationProvider"
+                                 xmlns:controls="clr-namespace:KeyboardAudioVisualizer.Controls"
+                                 xmlns:system="clr-namespace:System;assembly=mscorlib"
+                                 xmlns:attached="clr-namespace:KeyboardAudioVisualizer.Attached">
+
+    <styles:CachedResourceDictionary.MergedDictionaries>
+        <styles:CachedResourceDictionary Source="/KeyboardAudioVisualizer;component/Styles/FrameworkElement.xaml" />
+        <styles:CachedResourceDictionary Source="/KeyboardAudioVisualizer;component/Styles/Theme.xaml" />
+    </styles:CachedResourceDictionary.MergedDictionaries>
+
+    <DataTemplate DataType="{x:Type visualizationProvider:FrequencyBarsVisualizationProviderConfiguration}">
+        <Grid>
+            <Grid.Resources>
+                <Style BasedOn="{StaticResource StyleLabelForm}" TargetType="Label" />
+                <Style BasedOn="{StaticResource StyleTextBlockForm}" TargetType="TextBlock" />
+                <Style BasedOn="{StaticResource StyleListBoxForm}" TargetType="ListBox" />
+
+                <ObjectDataProvider x:Key="SpectrumModes" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+                    <ObjectDataProvider.MethodParameters>
+                        <x:Type TypeName="visualizationProvider:SpectrumMode"/>
+                    </ObjectDataProvider.MethodParameters>
+                </ObjectDataProvider>
+
+                <ObjectDataProvider x:Key="ValueModes" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+                    <ObjectDataProvider.MethodParameters>
+                        <x:Type TypeName="visualizationProvider:ValueMode"/>
+                    </ObjectDataProvider.MethodParameters>
+                </ObjectDataProvider>
+            </Grid.Resources>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="8" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <controls:Form Grid.Column="0">
+                <Label controls:Form.IsLabel="True" Content="Spectrum:" />
+                <ComboBox controls:Form.Fill="True"
+                          ItemsSource="{Binding Source={StaticResource SpectrumModes}}"
+                          SelectedItem="{Binding SpectrumMode}"
+                          ToolTip="Defines how the spectrum is grouped together.&#x0a; - Linear: Each bar represents the same range of frequencies.&#x0a; - Logarithmic: The higher the frequencies get the wider the range of grouped frequencies.&#x0a; - Gamma: Uses a configurable Gamma-Value to group the frequencies." />
+
+                <Label controls:Form.IsLabel="True" Content="Value:" />
+                <ComboBox controls:Form.Fill="True"
+                          ItemsSource="{Binding Source={StaticResource ValueModes}}"
+                          SelectedItem="{Binding ValueMode}"
+                          ToolTip="Defines how the value of a bar is calculated.&#x0a; - Sum: Sums the power of all frequencies grouped in the bar using all available data.&#x0a; - Max: Uses the maximum value in each group making sure peaks are caught well.&#x0a; - Average: Uses the average of all frequencies grouped in the bar. " />
+
+                <Label controls:Form.IsLabel="True" Content="Bars:" />
+                <Slider controls:Form.Fill="True" Minimum="1" Maximum="96" IsSnapToTickEnabled="True" TickFrequency="1" TickPlacement="BottomRight"
+                        Value="{Binding Bars}"
+                        ToolTip="The number of bars used to represent the spectrum.." />
+            </controls:Form>
+
+            <controls:Form Grid.Column="2">
+                <Label controls:Form.IsLabel="True" Content="Min Freq.:" />
+                <Slider controls:Form.Fill="True" Minimum="0" Maximum="22100" IsSnapToTickEnabled="True" TickFrequency="10" TickPlacement="None"
+                        Value="{Binding MinFrequency}"
+                        attached:SliderValue.Unit="Hz"
+                        ToolTip="The minimum frequency used in the graph." />
+
+                <Label controls:Form.IsLabel="True" Content="Max Freq.:" />
+                <Slider controls:Form.Fill="True" Minimum="0" Maximum="22100" IsSnapToTickEnabled="True" TickFrequency="10" TickPlacement="None"
+                        Value="{Binding MaxFrequency}"
+                        attached:SliderValue.Unit="Hz"
+                        ToolTip="The maximum frequency used in the graph." />
+
+                <Label controls:Form.IsLabel="True" Content="Gamma:" />
+                <Slider controls:Form.Fill="True" Minimum="1" Maximum="6" IsSnapToTickEnabled="True" TickFrequency="0.25" TickPlacement="BottomRight"
+                        IsEnabled="{Binding SpectrumMode, Converter={StaticResource EqualsToBoolConverter}, ConverterParameter={x:Static visualizationProvider:SpectrumMode.Gamma}}"
+                        Value="{Binding Gamma}"
+                        ToolTip="Only used if 'Gamma' is selected as spectrum!&#x0a;Higher values cause more compression of high frequencies." />
+            </controls:Form>
+
+            <controls:Form Grid.Column="4">
+                <Label controls:Form.IsLabel="True" controls:Form.LineBreaks="1" Content="Reference:" />
+                <Slider controls:Form.Fill="True" Minimum="1" Maximum="240" IsSnapToTickEnabled="True" TickFrequency="1" TickPlacement="None"
+                        Value="{Binding ReferenceLevel}"
+                        attached:SliderValue.Unit="dB"
+                        ToolTip="The reference value used to calculate the power of each bar.&#x0a;(You can read this as 'scaling')" />
+
+                <Label controls:Form.IsLabel="True" controls:Form.LineBreaks="1" Content="Smoothing:" />
+                <Slider controls:Form.Fill="True" Minimum="1" Maximum="10" IsSnapToTickEnabled="True" TickFrequency="0.5" TickPlacement="BottomRight"
+                        Value="{Binding Smoothing}"
+                        ToolTip="Smooths the graph to prevent flickering.&#x0a;Low values will cause a hectic fast plot, high values a slow one without peaks." />
+
+                <Label controls:Form.IsLabel="True" controls:Form.LineBreaks="1" Content="Emphasize:" />
+                <Slider controls:Form.Fill="True" Minimum="0" Maximum="2" IsSnapToTickEnabled="True" TickFrequency="0.05" TickPlacement="BottomRight"
+                        Value="{Binding EmphasisePeaks}"
+                        ToolTip="Emphasizes peaks. The higher the value, the bigger the difference between a 'loud-bar' and a 'quite-bar'." />
+            </controls:Form>
+        </Grid>
+    </DataTemplate>
+
+</styles:CachedResourceDictionary>
+    

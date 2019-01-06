@@ -1,0 +1,29 @@
+﻿<styles:CachedResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                                 xmlns:styles="clr-namespace:KeyboardAudioVisualizer.Styles"
+                                 xmlns:visualizationProvider="clr-namespace:KeyboardAudioVisualizer.AudioProcessing.VisualizationProvider"
+                                 xmlns:controls="clr-namespace:KeyboardAudioVisualizer.Controls"
+                                 xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <styles:CachedResourceDictionary.MergedDictionaries>
+        <styles:CachedResourceDictionary Source="/KeyboardAudioVisualizer;component/Styles/FrameworkElement.xaml" />
+        <styles:CachedResourceDictionary Source="/KeyboardAudioVisualizer;component/Styles/Theme.xaml" />
+    </styles:CachedResourceDictionary.MergedDictionaries>
+
+    <DataTemplate DataType="{x:Type visualizationProvider:BeatVisualizationProviderConfiguration}">
+        <Grid>
+            <Grid.Resources>
+                <Style BasedOn="{StaticResource StyleLabelForm}" TargetType="Label" />
+                <Style BasedOn="{StaticResource StyleTextBlockForm}" TargetType="TextBlock" />
+                <Style BasedOn="{StaticResource StyleListBoxForm}" TargetType="ListBox" />
+            </Grid.Resources>
+
+            <controls:Form LabelWidth="240">
+                <Label controls:Form.IsLabel="True" Content="No configuration available ..." />
+            </controls:Form>
+
+        </Grid>
+    </DataTemplate>
+
+</styles:CachedResourceDictionary>
+    
